@@ -1,172 +1,375 @@
-# Documentação: Software de Gestão de Clientes, Pedidos e Produtos
+### Documentação Técnica do Software
+
+#### customer/src/controller/CustomerController.ts
+**1. CustomerController**
+- **Propriedades**
+  - `_customerServices: CustomerServices`: Instância do serviço de cliente.
+- **Construtor**
+  - Inicializa a instância de `CustomerServices`.
+- **Métodos**
+  - `createCustomer(data: any)`: Método assíncrono que chama o serviço para criar um cliente e retorna o resultado.
+
+#### customer/src/infra/data/CustomerRepository.ts
+**1. CustomerRepository**
+- **Propriedades**
+  - `_prismaClient: PrismaClient`: Instância do cliente Prisma.
+- **Construtor**
+  - Inicializa a instância de `PrismaClient`.
+- **Métodos**
+  - `createCustomer(customer: Customer)`: Cria um cliente no banco de dados.
+  - `getCustomerByEmail(email: string)`: Obtém um cliente pelo email.
+  - `getCustomerByDocument(document: string)`: Obtém um cliente pelo documento.
+  - `getCustomers()`: Obtém todos os clientes.
+
+#### customer/src/infra/kafka/index.ts
+**Kafka**
+- **Propriedades**
+  - `clientId: "kafka"`
+  - `brokers: ["localhost:9091"]`: Lista de brokers do Kafka.
+
+#### customer/src/infra/kafka/producer/producer.ts
+**1. KafkaProducer**
+- **Propriedades**
+  - `_producer`: Instância do produtor Kafka.
+- **Construtor**
+  - Inicializa o produtor Kafka.
+- **Métodos**
+  - `connectProducer()`: Conecta o produtor ao Kafka.
+  - `disconnectProducer()`: Desconecta o produtor do Kafka.
+  - `sendMessage(topic: string, payload: any)`: Envia uma mensagem para um tópico do Kafka.
+
+#### customer/src/infra/types/types.ts
+**1. Tipos**
+- `CreateCustomerRequest`
+- `Customer`
+- `CustomerResponse`
+- `KafkaCustomer`
+
+#### customer/src/server.ts
+**Servidor Apollo**
+- **Schema GraphQL**
+  - **Mutations**
+    - `createCustomer(request: CreateCustomerRequest)`: Cria um cliente.
+  - **Queries**
+    - `hello`: Retorna uma mensagem de saudação.
+
+#### customer/src/services/CustomerServices.ts
+**1. CustomerServices**
+- **Propriedades**
+  - `_customerRepository: CustomerRepository`
+- **Construtor**
+  - Inicializa a instância de `CustomerRepository`.
+- **Métodos**
+  - `create(data: CreateCustomerRequest)`: Cria um cliente se ele não existir, notifica via Kafka e retorna o cliente criado.
+
+#### order/src/controller/OrderController.ts
+**1. OrderController**
+- **Propriedades**
+  - `_orderServices: OrderServices`
+- **Construtor**
+  - Inicializa a instância de `OrderServices`.
+- **Métodos**
+  - `create(data: any)`: Método assíncrono que chama o serviço para criar um pedido e retorna o resultado.
+
+#### order/src/infra/data/CustomerRepository.ts
+**1. CustomerRepository**
+- **Propriedades**
+  - `_prismaClient: PrismaClient`
+- **Construtor**
+  - Inicializa a instância de `PrismaClient`.
+- **Métodos**
+  - `createCustomer(customer: Customer)`: Cria um cliente no banco de dados.
+  - `getCustomerByEmail(email: string)`: Obtém um cliente pelo email.
+  - `getCustomers()`: Obtém todos os clientes.
+
+#### order/src/infra/data/OrderRepository.ts
+**1. OrderRepository**
+- **Propriedades**
+  - `_prismaClient: PrismaClient`
+- **Construtor**
+  - Inicializa a instância de `PrismaClient`.
+- **Métodos**
+  - `create(request: CreateOrderRequest)`: Cria um pedido no banco de dados.
+
+#### order/src/infra/data/ProductRepository.ts
+**1. ProductRepository**
+- **Propriedades**
+  - `_prismaClient: PrismaClient`
+- **Construtor**
+  - Inicializa a instância de `PrismaClient`.
+- **Métodos**
+  - `createProduct(product: Product)`: Cria um produto no banco de dados.
+  - `getProductById(productId: string)`: Obtém um produto pelo ID.
+  - `updateQuantity(product: Product)`: Atualiza a quantidade do produto.
+
+#### order/src/infra/kafka/consumer/createConsumer.ts
+**Consumidor Kafka**
+- **Métodos**
+  - `createConsumer()`: Cria e executa um consumidor Kafka para os tópicos "CUSTOMER_CREATED" e "PRODUCT_CREATED".
+  - `processMessage(message: string, topic: string)`: Processa mensagens por tópico.
+  - `processMessageCustomerCreated(message: string)`: Processa mensagens de criação de clientes.
+  - `processMessageProductCreated(message: string)`: Processa mensagens de criação de produtos.
+
+#### order/src/infra/kafka/consumer/kafkaconsumer.ts
+**Consumer Configuração Kafka**
+- **Métodos**
+  - `kafkaConsumer(topics: string[])`: Substitui a função que cria consumidor Kafka.
+
+#### order/src/infra/kafka/index.ts
+**Kafka**
+- **Propriedades**
+  - `clientId: "kafka"`
+  - `brokers: ["localhost:9091"]`: Lista de brokers do Kafka.
+
+#### order/src/infra/kafka/producer/producer.ts
+**1. KafkaProducer**
+- **Propriedades**
+  - `_producer`: Instância do produtor Kafka.
+- **Construtor**
+  - Inicializa o produtor Kafka.
+- **Métodos**
+  - `connectProducer()`: Conecta o produtor ao Kafka.
+  - `disconnectProducer()`: Desconecta o produtor do Kafka.
+  - `sendMessage(topic: string, payload: any)`: Envia uma mensagem para um tópico do Kafka.
+
+#### order/src/infra/types/types.ts
+**1. Tipos**
+- `Customer`
+- `CreateOrderRequest`
+- `CustomerConsumer`
+- `Product`
+- `OrderResponse`
+- `ProductConsumer`
+
+#### order/src/server.ts
+**Servidor Apollo**
+- **Schema GraphQL**
+  - **Mutations**
+    - `createOrder(request: CreateOrderRequest)`: Cria um pedido.
+  - **Queries**
+    - `hello`: Retorna uma mensagem de saudação.
+
+#### order/src/services/CustomerServices.ts
+**1. CustomerServices**
+- **Propriedades**
+  - `_customerRepository: CustomerRepository`
+- **Construtor**
+  - Inicializa a instância de `CustomerRepository`.
+- **Métodos**
+  - `create(data: CustomerConsumer)`: Cria um cliente com os dados fornecidos.
+
+#### order/src/services/OrderServices.ts
+**1. OrderServices**
+- **Propriedades**
+  - `_orderRepository: OrderRepository`
+  - `_productService: ProductsServices`
+- **Construtor**
+  - Inicializa as instâncias de `OrderRepository` e `ProductsServices`.
+- **Métodos**
+  - `create(request: CreateOrderRequest)`: Cria um pedido se os produtos e quantidades forem válidos e notificam via Kafka.
+
+#### order/src/services/ProductsServices.ts
+**1. ProductsServices**
+- **Propriedades**
+  - `_productRepository: ProductRepository`
+- **Construtor**
+  - Inicializa a instância de `ProductRepository`.
+- **Métodos**
+  - `create(data: ProductConsumer)`: Cria um produto com os dados fornecidos.
+  - `checkQuantityAvailable(productId: string, quantity: number)`: Verifica se a quantidade do produto está disponível.
+  - `updateQuantity(productId: string, quantity: number)`: Atualiza a quantidade do produto.
+
+#### products/src/controller/ProductController.ts
+**1. ProductController**
+- **Propriedades**
+  - `_productServices: ProductsServices`
+- **Construtor**
+  - Inicializa a instância de `ProductsServices`.
+- **Métodos**
+  - `createProduct(data: any)`: Método assíncrono que chama o serviço para criar um produto e retorna o resultado.
+
+#### products/src/infra/data/ProductRepository.ts
+**1. ProductRepository**
+- **Propriedades**
+  - `_prismaClient: PrismaClient`
+- **Construtor**
+  - Inicializa a instância de `PrismaClient`.
+- **Métodos**
+  - `createProduct(product: Product)`: Cria um produto no banco de dados.
+  - `getProductByCode(code: string)`: Obtém um produto pelo código.
+  - `updatedQuantity(productId: string, newQuantity: number)`: Atualiza a quantidade do produto.
+
+#### products/src/infra/kafka/consumer/createConsumer.ts
+**Consumidor Kafka**
+- **Métodos**
+  - `createConsumer()`: Cria e executa um consumidor Kafka para o tópico "PRODUCT_UPDATE_QUANTITY".
+  - `processMessage(message: string, topic: string)`: Processa mensagens por tópico.
+  - `processMessageProductUpdated(message: string)`: Processa mensagens de atualização de produtos.
+
+#### products/src/infra/kafka/consumer/kafkaconsumer.ts
+**Consumer Configuração Kafka**
+- **Métodos**
+  - `kafkaConsumer(topics: string[])`: Substitui a função que cria consumidor Kafka.
+
+#### products/src/infra/kafka/index.ts
+**Kafka**
+- **Propriedades**
+  - `clientId: "kafka"`
+  - `brokers: ["localhost:9091"]`: Lista de brokers do Kafka.
+
+#### products/src/infra/kafka/producer/producer.ts
+**1. KafkaProducer**
+- **Propriedades**
+  - `_producer`: Instância do produtor Kafka.
+- **Construtor**
+  - Inicializa o produtor Kafka.
+- **Métodos**
+  - `connectProducer()`: Conecta o produtor ao Kafka.
+  - `disconnectProducer()`: Desconecta o produtor do Kafka.
+  - `sendMessage(topic: string, payload: any)`: Envia uma mensagem para um tópico do Kafka.
+
+#### products/src/infra/types/types.ts
+**1. Tipos**
+- `ProductCreateRequest`
+- `KafkaProduct`
+- `ProductConsumer`
+- `Product`
+
+#### products/src/server.ts
+**Servidor Apollo**
+- **Schema GraphQL**
+  - **Mutations**
+    - `createProduct(request: CreateProductRequest)`: Cria um produto.
+  - **Queries**
+    - `hello`: Retorna uma mensagem de saudação.
+
+#### products/src/services/ProductsServices.ts
+**1. ProductsServices**
+- **Propriedades**
+  - `_productRepository: ProductRepository`
+- **Construtor**
+  - Inicializa a instância de `ProductRepository`.
+- **Métodos**
+  - `create(data: ProductCreateRequest)`: Cria um produto se ele não existir, notifica via Kafka e retorna o produto criado.
+  - `updatedQuantity(productId: string, newQuantity: number)`: Atualiza a quantidade de um produto.
 
 ---
 
-## Sumário
-1. [Resumo](#resumo)
-2. [Documentação Técnica](#documentacao-tecnica)
+### Documentação Funcional do Software
 
----
+#### Descrição Geral
+O software é um sistema de microserviços para gerenciamento de clientes, pedidos e produtos. Ele usa GraphQL para manejar comunicações em um backend baseado em Apollo Server e Kafka para mensageria entre serviços.
 
-## Resumo <a name="resumo"></a>
-Este software é dividido em três módulos principais: Gestão de Clientes, Gestão de Pedidos, e Gestão de Produtos. Cada módulo corresponde a serviços específicos, com controladores, repositórios de dados, integrações com Kafka e servidores Apollo GraphQL. A comunicação entre microserviços é feita via mensagens Kafka, permitindo a sincronização de dados entre os diferentes módulos.
+#### customer/src/controller/CustomerController.ts
+- **CustomerController**: Controlador responsável pelo CRUD de clientes.
+  - `createCustomer(data: any)`: Cria um cliente novo com base nos dados fornecidos.
 
----
+#### customer/src/infra/data/CustomerRepository.ts
+- **CustomerRepository**: Repositório que interage com o banco de dados para clientes.
+  - `createCustomer(customer: Customer)`: Insere um novo cliente no banco.
+  - `getCustomerByEmail(email: string)`: Busca um cliente pelo email.
+  - `getCustomerByDocument(document: string)`: Busca um cliente pelo documento.
+  - `getCustomers()`: Busca todos os clientes.
 
-## Documentação Técnica <a name="documentacao-tecnica"></a>
+#### customer/src/infra/kafka/index.ts
+- **Kafka**: Inicializa a configuração do cliente Kafka usado para produção e consumo de mensagens.
 
-### Gestão de Clientes
-#### Arquivos:
-- **customer/src/controller/CustomerController.ts**
-- **customer/src/infra/data/CustomerRepository.ts**
-- **customer/src/infra/kafka/index.ts**
-- **customer/src/infra/kafka/producer/producer.ts**
-- **customer/src/infra/types/types.ts**
-- **customer/src/server.ts**
-- **customer/src/services/CustomerServices.ts**
+#### customer/src/infra/kafka/producer/producer.ts
+- **KafkaProducer**: Produtor Kafka que envia mensagens de eventos de cliente.
+  - `sendMessage(topic: string, payload: any)`: Envia uma mensagem JSON para o tópico Kafka especificado.
 
-#### Descrição:
-1. **CustomerController.ts**:
-    - Importa os módulos `Request` e `Response` do express e a classe `CustomerServices`.
-    - A classe `CustomerController` possui um construtor que inicializa um objeto `CustomerServices`.
-    - Método `createCustomer` executa a criação de um cliente com tratamento de exceções.
+#### customer/src/infra/types/types.ts
+- **Tipos**: Define as estruturas de dados usadas no serviço.
 
-2. **CustomerRepository.ts**:
-    - Repositório responsável por operações de CRUD utilizando `PrismaClient`.
-    - Métodos disponíveis:
-      - `createCustomer`: Cria um novo cliente.
-      - `getCustomerByEmail`: Busca um cliente com base no email.
-      - `getCustomerByDocument`: Busca um cliente usando o documento.
-      - `getCustomers`: Retorna uma lista de todos os clientes.
+#### customer/src/server.ts
+- **Servidor Apollo**
+  - **Mutation**: Define a operação de criação de cliente.
+  - **Query**: Define uma saudação de validação ("hello").
 
-3. **index.ts (Kafka)**:
-    - Configura e exporta o cliente Kafka.
+#### customer/src/services/CustomerServices.ts
+- **CustomerServices**: Serviço que lida com operações de clientes incluindo validações e mensagem Kafka.
 
-4. **producer.ts (Kafka Producer)**:
-    - Configura e gerencia um produtor Kafka.
-    - Método `sendMessage` envia mensagens para um tópico Kafka.
+#### order/src/controller/OrderController.ts
+- **OrderController**: Controlador responsável pelo CRUD de pedidos.
+  - `create(data: any)`: Cria um novo pedido com base nos dados fornecidos.
 
-5. **types.ts**:
-    - Define tipos TypeScript para solicitações de criação de clientes, resposta de clientes e modelo de cliente para Kafka.
+#### order/src/infra/data/CustomerRepository.ts
+- **CustomerRepository**: Repositório que interage com o banco de dados para clientes.
+  - `createCustomer(customer: Customer)`: Insere um novo cliente no banco.
+  - `getCustomerByEmail(email: string)`: Busca um cliente pelo email.
+  - `getCustomers()`: Busca todos os clientes.
 
-6. **server.ts**:
-    - Configura o servidor Apollo GraphQL.
-    - Define esquemas e resolvers para criar clientes e responder a queries.
+#### order/src/infra/data/OrderRepository.ts
+- **OrderRepository**: Repositório que interage com o banco de dados para pedidos.
+  - `create(request: CreateOrderRequest)`: Insere um novo pedido no banco.
 
-7. **CustomerServices.ts**:
-    - Contém lógica de negócios para criação de clientes.
-    - Valida duplicidade e envia mensagem para Kafka ao criar um cliente.
+#### order/src/infra/data/ProductRepository.ts
+- **ProductRepository**: Repositório que interage com o banco de dados para produtos.
+  - `createProduct(product: Product)`: Insere um novo produto no banco.
+  - `getProductById(productId: string)`: Busca um produto pelo ID.
+  - `updateQuantity(product: Product)`: Atualiza a quantidade do produto.
 
----
+#### order/src/infra/kafka/consumer/createConsumer.ts
+- **KafkaConsumer**: Consumidor Kafka que processa mensagens de eventos de cliente e produto criado.
+  - `createConsumer()`: Cria o consumidor para os tópicos especificados.
+  - `processMessage(topic: string, message: string)`: Processa a mensagem com base no tópico.
 
-### Gestão de Pedidos
-#### Arquivos:
-- **order/src/controller/OrderController.ts**
-- **order/src/infra/data/CustomerRepository.ts**
-- **order/src/infra/data/OrderRepository.ts**
-- **order/src/infra/data/ProductRepository.ts**
-- **order/src/infra/kafka/consumer/createConsumer.ts**
-- **order/src/infra/kafka/consumer/index.ts**
-- **order/src/infra/kafka/consumer/kafkaconsumer.ts**
-- **order/src/infra/kafka/index.ts**
-- **order/src/infra/kafka/producer/producer.ts**
-- **order/src/infra/types/types.ts**
-- **order/src/server.ts**
-- **order/src/services/CustomerServices.ts**
-- **order/src/services/OrderServices.ts**
-- **order/src/services/ProductsServices.ts**
+#### order/src/infra/kafka/index.ts
+- **Kafka**: Inicializa a configuração do cliente Kafka usado para produção e consumo de mensagens.
 
-#### Descrição:
-1. **OrderController.ts**:
-    - Controlador que gerencia a criação de pedidos, utilizando `OrderServices`.
-    - Método `create` realiza a operação de criação com tratamento de exceções.
+#### order/src/infra/kafka/producer/producer.ts
+- **KafkaProducer**: Produtor Kafka que envia mensagens de eventos de produto e pedido.
+  - `sendMessage(topic: string, payload: any)`: Envia uma mensagem JSON para o tópico Kafka especificado.
 
-2. **CustomerRepository.ts**:
-    - Semelhante ao módulo de clientes, gerencia operações de CRUD para clientes.
+#### order/src/infra/types/types.ts
+- **Tipos**: Define as estruturas de dados usadas no serviço.
 
-3. **OrderRepository.ts**:
-    - Repositório de dados para pedidos, usando `PrismaClient`.
-    - Métodos:
-      - `create`: Cria um pedido e seus itens.
+#### order/src/server.ts
+- **Servidor Apollo**
+  - **Mutation**: Define a operação de criação de pedido.
+  - **Query**: Define uma saudação de validação ("hello").
 
-4. **ProductRepository.ts**:
-    - Repositório para operações relacionadas a produtos, incluindo criação e atualização de quantidade.
+#### order/src/services/CustomerServices.ts
+- **CustomerServices**: Serviço que lida com operações de clientes incluindo validações e mensagem Kafka.
 
-5. **consumer (Kafka)**:
-    - Configura consumidores Kafka para processar mensagens como `CUSTOMER_CREATED` e `PRODUCT_CREATED`.
-    - Cria consumidores e define lógica de processamento das mensagens.
+#### order/src/services/OrderServices.ts
+- **OrderServices**: Serviço que lida com operações de pedidos incluindo validação de produto e notificações Kafka.
 
-6. **producer.ts (Kafka Producer)**:
-    - Semelhante ao produtor de clientes, envia mensagens relacionadas a atualizações de produtos.
+#### order/src/services/ProductsServices.ts
+- **ProductsServices**: Serviço que lida com operações de produto e quantidades.
 
-7. **index.ts (Kafka)**:
-    - Configura e exporta o cliente Kafka.
+#### products/src/controller/ProductController.ts
+- **ProductController**: Controlador responsável pelo CRUD de produtos.
+  - `createProduct(data: any)`: Cria um novo produto com base nos dados fornecidos.
 
-8. **types.ts**:
-    - Define os tipos para pedidos, clientes e produtos, usados em operações de CRUD e Kafka.
+#### products/src/infra/data/ProductRepository.ts
+- **ProductRepository**: Repositório que interage com o banco de dados para produtos.
+  - `createProduct(product: Product)`: Insere um novo produto no banco.
+  - `getProductByCode(code: string)`: Busca um produto pelo código.
+  - `updatedQuantity(productId: string, newQuantity: number)`: Atualiza a quantidade do produto.
 
-9. **server.ts**:
-    - Configura servidor Apollo GraphQL para operações de pedidos.
-    - Define esquemas e resolvers para criaçâo de pedidos.
+#### products/src/infra/kafka/consumer/createConsumer.ts
+- **KafkaConsumer**: Consumidor Kafka que processa mensagens de eventos de atualização de produtos.
+  - `createConsumer()`: Cria o consumidor para o tópico "PRODUCT_UPDATE_QUANTITY".
+  - `processMessage(topic: string, message: string)`: Processa a mensagem com base no tópico.
 
-10. **CustomerServices.ts**:
-    - Serviço que trata a lógica de criação de clientes a partir de mensagens Kafka.
+#### products/src/infra/kafka/index.ts
+- **Kafka**: Inicializa a configuração do cliente Kafka usado para produção e consumo de mensagens.
 
-11. **OrderServices.ts**:
-    - Serviço que realiza a validação e criação de pedidos.
-    - Verifica a disponibilidade de produtos e atualiza quantidades.
+#### products/src/infra/kafka/producer/producer.ts
+- **KafkaProducer**: Produtor Kafka que envia mensagens de eventos de produto.
+  - `sendMessage(topic: string, payload: any)`: Envia uma mensagem JSON para o tópico Kafka especificado.
 
-12. **ProductsServices.ts**:
-    - Serviço que gerencia operações sobre produtos, incluindo a verificação de quantidade disponível e atualização de quantidade.
+#### products/src/infra/types/types.ts
+- **Tipos**: Define as estruturas de dados usadas no serviço.
 
----
+#### products/src/server.ts
+- **Servidor Apollo**
+  - **Mutation**: Define a operação de criação de produto.
+  - **Query**: Define uma saudação de validação ("hello").
 
-### Gestão de Produtos
-#### Arquivos:
-- **products/src/controller/ProductController.ts**
-- **products/src/infra/data/ProductRepository.ts**
-- **products/src/infra/kafka/consumer/createConsumer.ts**
-- **products/src/infra/kafka/consumer/index.ts**
-- **products/src/infra/kafka/consumer/kafkaconsumer.ts**
-- **products/src/infra/kafka/index.ts**
-- **products/src/infra/kafka/producer/producer.ts**
-- **products/src/infra/types/types.ts**
-- **products/src/server.ts**
-- **products/src/services/ProductsServices.ts**
+#### products/src/services/ProductsServices.ts
+- **ProductsServices**: Serviço que lida com operações de produtos e notificações Kafka.
 
-#### Descrição:
-1. **ProductController.ts**:
-    - Controlador de produtos que gerencia a criação de produtos, utilizando `ProductsServices`.
-    - Método `createProduct` realiza a operação de criação com tratamento de exceções.
-
-2. **ProductRepository.ts**:
-    - Repositório de dados para produtos, usando `PrismaClient`.
-    - Métodos:
-      - `createProduct`: Cria um novo produto.
-      - `getProductByCode`: Retorna produto com base no código.
-      - `updatedQuantity`: Atualiza a quantidade de um produto.
-
-3. **consumer (Kafka)**:
-    - Configura consumidores Kafka para processar mensagens como `PRODUCT_UPDATE_QUANTITY`.
-    - Cria consumidores e lógica de processamento de mensagens.
-
-4. **producer.ts (Kafka Producer)**:
-    - Envia mensagens relacionadas à criação e atualização de produtos.
-
-5. **index.ts (Kafka)**:
-    - Configura e exporta o cliente Kafka.
-
-6. **types.ts**:
-    - Define tipos para criação de produtos e integração com Kafka.
-
-7. **server.ts**:
-    - Configura servidor Apollo GraphQL para operações de produtos.
-    - Define esquemas e resolvers para criação de produtos.
-
-8. **ProductsServices.ts**:
-    - Serviço de lógica de produtos.
-    - Lida com a criação de produtos e atualização de quantidade.
-
----
-
-Essa documentação aborda todos os principais aspectos técnicos e funcionais do software. Caso sejam necessárias melhorias ou ajustes, sugere-se a revisão de cada módulo especificamente conforme o nível de detalhe desejado.
+### Conclusão
+Este software consiste em microserviços altamente desacoplados que interagem via Kafka. Ele usa o Apollo Server para fornecer uma interface GraphQL para interações com clientes, pedidos e produtos, além de notificações em tempo real via Kafka. As estruturas bem definidas e o uso de repositórios para interações com banco de dados garantem manutenibilidade e escalabilidade do sistema.
